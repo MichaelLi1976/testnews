@@ -2,33 +2,26 @@ const https = require('https');
 const http  = require('http');
 const fs    = require('fs');
 
+// Priority feeds: LTN gives direct article links (no redirect)
+// Google News as fallback
 const FEEDS = [
-  // Google News Taiwan — always fresh, no auth
-  'https://news.google.com/rss?gl=TW&hl=zh-TW&ceid=TW:zh-Hant',
-  // CNA 中央社
-  'https://www.cna.com.tw/rss/aall.aspx',
-  // ETtoday
-  'https://www.ettoday.net/news/rss.xml',
-  // UDN 聯合新聞網
-  'https://udn.com/rssfeed/news/2/0?ch=news',
+  { url: 'https://news.ltn.com.tw/rss/all.xml',                          name: '自由時報' },
+  { url: 'https://news.google.com/rss?gl=TW&hl=zh-TW&ceid=TW:zh-Hant', name: 'Google新聞' },
+  { url: 'https://tw.news.yahoo.com/rss',                                name: 'Yahoo新聞' },
 ];
-const MAX = 300;
+const MAX = 500;
 
 function get(url, hops = 5) {
   return new Promise((resolve, reject) => {
     const lib = url.startsWith('https') ? https : http;
     const req = lib.get(url, {
       timeout: 15000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)',
-        'Accept': 'application/rss+xml,application/xml,text/xml,*/*',
-      },
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/2.0)', Accept: '*/*' },
     }, res => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && hops > 0) {
-        const next = res.headers.location.startsWith('http') ? res.headers.location
-          : new URL(res.headers.location, url).href;
-        res.resume();
-        return resolve(get(next, hops - 1));
+        const next = /^https?:/.test(res.headers.location)
+          ? res.headers.location : new URL(res.headers.location, url).href;
+        res.resume(); return resolve(get(next, hops - 1));
       }
       const buf = [];
       res.on('data', c => buf.push(c));
@@ -39,9 +32,19 @@ function get(url, hops = 5) {
   });
 }
 
+function decode(s) {
+  return s
+    .replace(/<[^>]+>/g, '')
+    .replace(/&lt;/g,  '<').replace(/&gt;/g,  '>')
+    .replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+    .replace(/\s+/g, ' ').trim();
+}
+
 function parse(xml) {
   return [...xml.matchAll(/<item[^>]*>([\s\S]*?)<\/item>/gi)].flatMap(m => {
     const s = m[1];
+
     const cdata = tag => s.match(new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>`))?.[1]?.trim();
     const plain = tag => s.match(new RegExp(`<${tag}[^>]*>([^<]*)<\\/${tag}>`))?.[1]?.trim();
     const v = tag => cdata(tag) || plain(tag) || '';
@@ -51,24 +54,12 @@ function parse(xml) {
       || s.match(/<link[^>]+href="([^"]+)"/)?.[1]?.trim()
       || v('guid')
       || '';
-    const rawDesc = v('description')
-      .replace(/<[^>]+>/g, '')
-      .replace(/&lt;[^&]*&gt;/g, '')
-      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#?\w+;/g, '')
-      .replace(/\s+/g, ' ').trim();
-    const desc  = rawDesc.slice(0, 200);
+    const rawDesc = cdata('description') || plain('description') || '';
+    const desc  = decode(rawDesc).slice(0, 200);
     const pub   = v('pubDate');
+
     return title && link ? [{ title, link, desc, pub }] : [];
   });
-}
-
-function sourceName(url) {
-  if (url.includes('google.com')) return 'Google新聞';
-  if (url.includes('cna'))       return '中央社';
-  if (url.includes('ltn'))       return '自由時報';
-  if (url.includes('ettoday'))   return 'ETtoday';
-  if (url.includes('udn'))       return '聯合新聞網';
-  return '新聞';
 }
 
 async function main() {
@@ -78,30 +69,34 @@ async function main() {
 
   for (const feed of FEEDS) {
     try {
-      console.log(`Fetching ${feed}`);
-      const { status, body } = await get(feed);
+      console.log(`Fetching ${feed.url}`);
+      const { status, body } = await get(feed.url);
       console.log(`  status=${status} size=${body.length}`);
       if (status !== 200) { console.log('  non-200, skip'); continue; }
 
       const items = parse(body);
-      console.log(`  parsed=${items.length} items`);
-      if (!items.length) { console.log('  first300:', body.slice(0, 300)); continue; }
+      console.log(`  parsed ${items.length} items`);
 
       const fresh = items.find(i => !seen.has(i.link));
       if (fresh) {
-        news.unshift({ title: fresh.title, link: fresh.link, desc: fresh.desc,
-                       pub: fresh.pub, source: sourceName(feed),
-                       at: new Date().toISOString() });
+        news.unshift({
+          title:  fresh.title,
+          link:   fresh.link,
+          desc:   fresh.desc,
+          pub:    fresh.pub,
+          source: feed.name,
+          at:     new Date().toISOString(),
+        });
         fs.writeFileSync('news.json', JSON.stringify(news.slice(0, MAX), null, 2));
         console.log('✓ Added:', fresh.title);
         return;
       }
-      console.log('  all seen, try next feed');
+      console.log('  all items already seen, try next feed');
     } catch (e) {
-      console.error('✗', feed, e.message);
+      console.error('✗', feed.url, e.message);
     }
   }
-  console.log('No new items.');
+  console.log('No new items found.');
 }
 
 main().catch(e => { console.error(e.message); process.exit(0); });
