@@ -1,0 +1,6 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "node scripts/railway-worker.js"
+restartPolicyType = "always"

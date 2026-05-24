@@ -1,0 +1,12 @@
+{
+  "name": "testnews-worker",
+  "version": "1.0.0",
+  "description": "Taiwan news auto-fetch and FB post worker",
+  "main": "scripts/railway-worker.js",
+  "scripts": {
+    "start": "node scripts/railway-worker.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
