@@ -1,0 +1,29 @@
+name: FB Hourly Post
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # 每小時整點執行
+  workflow_dispatch:        # 可手動觸發測試
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: 彙整新聞並PO到FB
+        env:
+          FB_ACCESS_TOKEN:  ${{ secrets.FB_ACCESS_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FB_PAGE_ID:       '61588120692664'
+        run: node scripts/fb-post.js
