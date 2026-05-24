@@ -54,7 +54,7 @@ footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--sub);border
 </main>
 <footer>每 5 分鐘自動更新 &nbsp;·&nbsp; 來源：中央社 · 自由時報 · ETtoday</footer>
 <script>
-const URL = 'https://raw.githubusercontent.com/MichaelLi1976/testnews/main/news.json';
+const DATA_URL = 'https://cdn.jsdelivr.net/gh/MichaelLi1976/testnews@master/news.json';
 
 function ago(iso) {
   const m = Math.floor((Date.now() - new Date(iso)) / 60000);
@@ -81,7 +81,7 @@ function render(items) {
 
 async function load() {
   try {
-    const r = await fetch(URL + '?_=' + Date.now());
+    const r = await fetch(DATA_URL + '?_=' + Date.now());
     if (!r.ok) throw new Error(r.status);
     const d = await r.json();
     render(d);
