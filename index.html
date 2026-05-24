@@ -13,73 +13,135 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsMediaOrganization","name":"台灣即時新聞","description":"自動彙整台灣各大媒體最新新聞"}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0c0c0c;--card:#161616;--border:#252525;--text:#ededed;--sub:#777;--red:#e5383b;--red2:rgba(229,56,59,.12);--green:#22c55e;--modal-bg:rgba(0,0,0,.75)}
+:root{
+  --bg:#0c0c0c;--card:#161616;--card2:#1a1a1a;--border:#252525;
+  --text:#ededed;--sub:#777;--sub2:#555;
+  --red:#e5383b;--red2:rgba(229,56,59,.12);
+  --green:#22c55e;--green2:rgba(34,197,94,.12);
+  --blue:#3b82f6;--blue2:rgba(59,130,246,.12);
+  --modal-bg:rgba(0,0,0,.78)
+}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;min-height:100vh}
 
 /* ── Header ── */
-header{background:#111;border-bottom:1px solid var(--border);padding:1rem 1.5rem;position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between;gap:1rem;backdrop-filter:blur(10px)}
-.logo{font-size:1.15rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:.5rem}
+header{background:#111;border-bottom:1px solid var(--border);padding:.85rem 1.5rem;position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between;gap:1rem;backdrop-filter:blur(10px)}
+.logo{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:.5rem;flex-shrink:0}
 .logo em{color:var(--red);font-style:normal}
-.live{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 2s infinite}
+.live{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 2s infinite;flex-shrink:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.header-right{display:flex;align-items:center;gap:.75rem}
+.header-right{display:flex;align-items:center;gap:.65rem}
 #status{font-size:.72rem;color:var(--sub);white-space:nowrap}
-.badge-interval{font-size:.68rem;color:var(--sub);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.2rem .5rem;white-space:nowrap}
+.badge-interval{font-size:.65rem;color:var(--sub);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.18rem .45rem;white-space:nowrap}
 .badge-interval span{color:var(--red)}
-
-/* ── Settings button ── */
-.btn-settings{background:none;border:1px solid var(--border);color:var(--sub);border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-size:1rem;transition:border-color .15s,color .15s;line-height:1}
+.btn-settings{background:none;border:1px solid var(--border);color:var(--sub);border-radius:8px;padding:.32rem .58rem;cursor:pointer;font-size:.95rem;transition:border-color .15s,color .15s;line-height:1}
 .btn-settings:hover{border-color:var(--red);color:var(--text)}
 
+/* ── Tab bar ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#111;padding:0 1.5rem;gap:0;position:sticky;top:57px;z-index:8}
+.tab-btn{background:none;border:none;color:var(--sub);padding:.65rem 1.1rem;font-size:.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;display:flex;align-items:center;gap:.4rem;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--red)}
+.tab-btn .count-badge{font-size:.62rem;background:var(--red2);color:var(--red);border-radius:100px;padding:.1rem .38rem;font-weight:700}
+
 /* ── Modal ── */
-.modal-overlay{display:none;position:fixed;inset:0;background:var(--modal-bg);z-index:100;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay{display:none;position:fixed;inset:0;background:var(--modal-bg);z-index:100;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
 .modal-overlay.open{display:flex}
-.modal{background:#1a1a1a;border:1px solid var(--border);border-radius:16px;padding:1.5rem;width:100%;max-width:420px;position:relative}
+.modal{background:#1a1a1a;border:1px solid var(--border);border-radius:16px;padding:1.5rem;width:100%;max-width:460px;position:relative;margin:auto}
 .modal h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
 .modal h3::before{content:'⚙';font-size:1.1rem}
-.form-row{margin-bottom:1rem}
-.form-row label{display:block;font-size:.78rem;color:var(--sub);margin-bottom:.4rem}
+.modal-section{font-size:.72rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .6rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.modal-section:first-of-type{border-top:none;padding-top:0;margin-top:0}
+.form-row{margin-bottom:.85rem}
+.form-row label{display:block;font-size:.78rem;color:var(--sub);margin-bottom:.38rem}
 .form-row .input-wrap{display:flex;align-items:center;gap:.5rem}
-.form-row input[type=number]{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.5rem .75rem;font-size:.9rem;width:90px;outline:none}
+.form-row input[type=number]{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.48rem .7rem;font-size:.88rem;width:88px;outline:none}
 .form-row input[type=number]:focus{border-color:var(--red)}
 .form-row .unit{font-size:.78rem;color:var(--sub)}
-.form-row input[type=password],
-.form-row input[type=text]{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.5rem .75rem;font-size:.82rem;width:100%;outline:none;font-family:monospace}
-.form-row input[type=password]:focus,
-.form-row input[type=text]:focus{border-color:var(--red)}
-.token-hint{font-size:.7rem;color:var(--sub);margin-top:.3rem}
+.form-row input[type=password],.form-row input[type=text]{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.48rem .7rem;font-size:.8rem;width:100%;outline:none;font-family:monospace}
+.form-row input[type=password]:focus,.form-row input[type=text]:focus{border-color:var(--red)}
+.form-row textarea{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.48rem .7rem;font-size:.78rem;width:100%;outline:none;font-family:monospace;resize:vertical;min-height:72px;line-height:1.5}
+.form-row textarea:focus{border-color:var(--red)}
+.token-hint{font-size:.7rem;color:var(--sub);margin-top:.28rem}
 .token-hint a{color:var(--red);text-decoration:none}
-.modal-actions{display:flex;gap:.75rem;margin-top:1.5rem}
-.btn-save{flex:1;background:var(--red);color:#fff;border:none;border-radius:8px;padding:.6rem;font-size:.88rem;font-weight:600;cursor:pointer;transition:opacity .15s}
+.modal-actions{display:flex;gap:.75rem;margin-top:1.4rem}
+.btn-save{flex:1;background:var(--red);color:#fff;border:none;border-radius:8px;padding:.58rem;font-size:.87rem;font-weight:600;cursor:pointer;transition:opacity .15s}
 .btn-save:hover{opacity:.85}
 .btn-save:disabled{opacity:.4;cursor:not-allowed}
-.btn-cancel{background:none;border:1px solid var(--border);color:var(--sub);border-radius:8px;padding:.6rem 1rem;font-size:.88rem;cursor:pointer;transition:border-color .15s}
+.btn-cancel{background:none;border:1px solid var(--border);color:var(--sub);border-radius:8px;padding:.58rem 1rem;font-size:.87rem;cursor:pointer;transition:border-color .15s}
 .btn-cancel:hover{border-color:var(--text)}
-.save-msg{font-size:.78rem;margin-top:.75rem;min-height:1.2em;text-align:center}
+.save-msg{font-size:.77rem;margin-top:.7rem;min-height:1.2em;text-align:center}
 .save-msg.ok{color:var(--green)}
 .save-msg.err{color:var(--red)}
 .modal-close{position:absolute;top:.75rem;right:.75rem;background:none;border:none;color:var(--sub);font-size:1.2rem;cursor:pointer;line-height:1;padding:.25rem}
 .modal-close:hover{color:var(--text)}
 
-/* ── News grid ── */
-main{max-width:860px;margin:0 auto;padding:1.75rem 1rem 3rem}
+/* ── Tab panels ── */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+main{max-width:860px;margin:0 auto;padding:1.6rem 1rem 3rem}
 h1.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-.grid{display:grid;gap:.875rem}
-article{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.35rem;transition:border-color .18s,transform .18s;cursor:pointer;position:relative}
-article:hover{border-color:var(--red);transform:translateY(-2px)}
-.meta{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap}
-.badge{background:var(--red2);color:var(--red);font-size:.68rem;font-weight:700;padding:.18rem .55rem;border-radius:100px;letter-spacing:.02em}
-time{font-size:.72rem;color:var(--sub);margin-left:auto}
-h2{font-size:.97rem;font-weight:600;line-height:1.55;margin-bottom:.4rem}
+
+/* ── News cards ── */
+.grid{display:grid;gap:.85rem}
+article.news-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.05rem 1.3rem;transition:border-color .18s,transform .18s;cursor:pointer;position:relative}
+article.news-card:hover{border-color:var(--red);transform:translateY(-2px)}
+.meta{display:flex;align-items:center;gap:.5rem;margin-bottom:.55rem;flex-wrap:wrap}
+.badge{background:var(--red2);color:var(--red);font-size:.66rem;font-weight:700;padding:.17rem .52rem;border-radius:100px;letter-spacing:.02em}
+time{font-size:.7rem;color:var(--sub);margin-left:auto}
+h2{font-size:.95rem;font-weight:600;line-height:1.55;margin-bottom:.38rem}
 h2 a{color:var(--text);text-decoration:none}
 h2 a:hover{color:var(--red)}
 h2 a::after{content:'';position:absolute;inset:0;z-index:1}
-p.desc{font-size:.82rem;color:var(--sub);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+p.desc{font-size:.8rem;color:var(--sub);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .skel{background:linear-gradient(90deg,var(--card) 25%,var(--border) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:14px;height:106px;border:1px solid var(--border)}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .empty{text-align:center;color:var(--sub);padding:5rem 0;font-size:.9rem}
+
+/* ── Reply history cards ── */
+.reply-grid{display:grid;gap:.85rem}
+.reply-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.reply-header h2{font-size:.95rem;font-weight:700;color:var(--text)}
+.reply-count{font-size:.75rem;color:var(--sub)}
+
+article.reply-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;display:grid;gap:.7rem}
+article.reply-card:hover{border-color:#333}
+
+.rc-post{display:flex;align-items:flex-start;gap:.55rem}
+.rc-icon{font-size:.95rem;flex-shrink:0;margin-top:.05rem}
+.rc-post-text{font-size:.8rem;color:var(--sub);line-height:1.5;flex:1;min-width:0}
+.rc-post-text strong{color:var(--text);font-weight:600}
+.rc-post-link{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;color:var(--blue);text-decoration:none;flex-shrink:0;padding:.2rem .45rem;background:var(--blue2);border-radius:6px;white-space:nowrap;transition:opacity .15s}
+.rc-post-link:hover{opacity:.8}
+
+.rc-divider{border:none;border-top:1px solid var(--border)}
+
+.rc-comment{display:flex;align-items:flex-start;gap:.55rem}
+.rc-comment-text{font-size:.82rem;line-height:1.55;flex:1;min-width:0}
+.rc-commenter{font-size:.7rem;color:var(--sub);margin-bottom:.2rem}
+
+.rc-reply{display:flex;align-items:flex-start;gap:.55rem;background:var(--green2);border-radius:10px;padding:.6rem .8rem}
+.rc-reply-text{font-size:.82rem;line-height:1.55;color:var(--green);flex:1;min-width:0}
+.rc-reply-label{font-size:.68rem;color:#16a34a;font-weight:700;margin-bottom:.18rem}
+
+.rc-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.3rem}
+.rc-time{font-size:.68rem;color:var(--sub2)}
+.rc-page{font-size:.68rem;color:var(--sub2);background:var(--card2);border:1px solid var(--border);border-radius:5px;padding:.1rem .38rem}
+
+.reply-empty{text-align:center;color:var(--sub);padding:5rem 0;font-size:.9rem}
+.reply-empty p{margin-bottom:.5rem}
+.reply-empty small{font-size:.78rem;opacity:.7}
+
 footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--sub);border-top:1px solid var(--border)}
-@media(max-width:560px){header{padding:.75rem 1rem}.logo{font-size:1rem}main{padding:1rem .75rem 2rem}article{padding:.9rem 1rem}.badge-interval{display:none}}
+@media(max-width:560px){
+  header{padding:.7rem 1rem}
+  .logo{font-size:.98rem}
+  main{padding:1rem .75rem 2rem}
+  article.news-card{padding:.88rem .95rem}
+  article.reply-card{padding:.95rem 1rem}
+  .badge-interval{display:none}
+  .tabs{padding:0 .75rem}
+  .tab-btn{padding:.6rem .75rem;font-size:.8rem}
+}
 </style>
 </head>
 <body>
@@ -87,17 +149,32 @@ footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--sub);border
 <header>
   <div class="logo"><span class="live"></span>台灣<em>即時</em>新聞</div>
   <div class="header-right">
-    <div class="badge-interval" id="intervalBadge">抓取 <span id="badgeFetch">5</span>分 · 發文 <span id="badgePost">60</span>分</div>
+    <div class="badge-interval" id="intervalBadge">抓 <span id="badgeFetch">5</span>分 · 發 <span id="badgePost">60</span>分 · 回 <span id="badgeReply">30</span>分</div>
     <div id="status">載入中…</div>
     <button class="btn-settings" id="btnSettings" title="排程設定">⚙</button>
   </div>
 </header>
 
+<!-- Tab 切換列 -->
+<nav class="tabs" role="tablist">
+  <button class="tab-btn active" role="tab" data-tab="news" id="tabNews">
+    📰 即時新聞
+    <span class="count-badge" id="newsCount">…</span>
+  </button>
+  <button class="tab-btn" role="tab" data-tab="replies" id="tabReplies">
+    💬 回覆記錄
+    <span class="count-badge" id="replyCount">…</span>
+  </button>
+</nav>
+
 <!-- 設定 Modal -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <button class="modal-close" id="btnClose">✕</button>
-    <h3>排程設定</h3>
+    <h3>排程與粉專設定</h3>
+
+    <!-- 新聞排程 -->
+    <div class="modal-section">📰 新聞排程</div>
 
     <div class="form-row">
       <label>抓取新聞間隔</label>
@@ -106,7 +183,6 @@ footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--sub);border
         <span class="unit">分鐘</span>
       </div>
     </div>
-
     <div class="form-row">
       <label>FB 發文間隔</label>
       <div class="input-wrap">
@@ -115,10 +191,36 @@ footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--sub);border
       </div>
     </div>
 
+    <!-- 留言回覆 -->
+    <div class="modal-section">💬 留言回覆</div>
+
     <div class="form-row">
-      <label>GitHub Token（儲存於本機）</label>
+      <label>留言檢查間隔</label>
+      <div class="input-wrap">
+        <input type="number" id="inputReply" min="5" max="1440" value="30">
+        <span class="unit">分鐘</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>每次最多回覆幾則</label>
+      <div class="input-wrap">
+        <input type="number" id="inputRepliesPerRun" min="1" max="20" value="3">
+        <span class="unit">則</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>粉專 Page ID（一行一個，空白則使用 Secrets 設定）</label>
+      <textarea id="inputPageIds" placeholder="123456789&#10;987654321（選填，留空使用 GitHub Secret 的 FB_PAGE_ID）" rows="3"></textarea>
+      <div class="token-hint">在 <a href="https://www.facebook.com/settings/?tab=about" target="_blank">粉專設定</a> 或 <a href="https://developers.facebook.com" target="_blank">FB Developer</a> 可找到 Page ID</div>
+    </div>
+
+    <!-- GitHub Token -->
+    <div class="modal-section">🔑 授權</div>
+
+    <div class="form-row">
+      <label>GitHub Token（儲存於本機，不上傳）</label>
       <input type="password" id="inputToken" placeholder="gho_xxxx 或 ghp_xxxx" autocomplete="off">
-      <div class="token-hint">Token 需有 <code>repo</code> + <code>workflow</code> 權限。<a href="https://github.com/settings/tokens" target="_blank">取得 Token →</a></div>
+      <div class="token-hint">需有 <code>repo</code> + <code>workflow</code> 權限。<a href="https://github.com/settings/tokens" target="_blank">取得 Token →</a></div>
     </div>
 
     <div class="modal-actions">
@@ -131,30 +233,47 @@ footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--sub);border
 
 <main>
   <h1 class="sr">台灣即時新聞 — 自動更新</h1>
-  <div id="root">
-    <div class="skel"></div><div class="skel"></div><div class="skel"></div>
-    <div class="skel"></div><div class="skel"></div>
+
+  <!-- Tab: 新聞 -->
+  <div class="tab-panel active" id="panelNews">
+    <div id="root">
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+      <div class="skel"></div><div class="skel"></div>
+    </div>
+  </div>
+
+  <!-- Tab: 回覆記錄 -->
+  <div class="tab-panel" id="panelReplies">
+    <div id="replyRoot">
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    </div>
   </div>
 </main>
+
 <footer id="footerTxt">自動更新 &nbsp;·&nbsp; 來源：中央社 · 自由時報 · ETtoday</footer>
 
 <script>
-/* ── 常數 ── */
-const DATA_URL   = 'https://raw.githubusercontent.com/MichaelLi1976/testnews/master/news.json';
-const CONFIG_URL = 'https://raw.githubusercontent.com/MichaelLi1976/testnews/master/config.json';
-const CDN_PURGE  = 'https://purge.jsdelivr.net/gh/MichaelLi1976/testnews@master/config.json';
-const GH_REPO    = 'MichaelLi1976/testnews';
-const GH_FILE    = 'config.json';
-const LS_TOKEN   = 'ghToken';
-const LS_CFG     = 'newsConfig';
+/* ══ 常數 ══════════════════════════════════════════════════════════════════ */
+const DATA_URL    = 'https://raw.githubusercontent.com/MichaelLi1976/testnews/master/news.json';
+const CONFIG_URL  = 'https://raw.githubusercontent.com/MichaelLi1976/testnews/master/config.json';
+const REPLY_URL   = 'https://raw.githubusercontent.com/MichaelLi1976/testnews/master/replied-comments.json';
+const CDN_PURGE_CFG  = 'https://purge.jsdelivr.net/gh/MichaelLi1976/testnews@master/config.json';
+const CDN_PURGE_REP  = 'https://purge.jsdelivr.net/gh/MichaelLi1976/testnews@master/replied-comments.json';
+const GH_REPO     = 'MichaelLi1976/testnews';
+const GH_FILE     = 'config.json';
+const LS_TOKEN    = 'ghToken';
+const LS_CFG      = 'newsConfig';
 
-/* ── 設定 ── */
-let cfg = { fetchIntervalMin: 5, postIntervalMin: 60 };
+/* ══ 設定 ══════════════════════════════════════════════════════════════════ */
+let cfg = { fetchIntervalMin: 5, postIntervalMin: 60, replyIntervalMin: 30, repliesPerRun: 3, fbPageIds: [] };
 
-/* 用 GitHub Contents API 讀取 config（零快取，直連 git object store） */
 async function ghGetConfig(token) {
   const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
-    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github+json',
+      'Cache-Control': 'no-store',
+    }
   });
   if (!r.ok) throw new Error(`GitHub API ${r.status}`);
   const data = await r.json();
@@ -165,51 +284,49 @@ async function loadConfig() {
   const token = localStorage.getItem(LS_TOKEN);
   let ok = false;
 
-  /* 1. 有 token → GitHub Contents API（無任何快取，100% 即時） */
   if (token) {
     try {
       const { parsed } = await ghGetConfig(token);
-      cfg = parsed;
+      cfg = { ...cfg, ...parsed };
       localStorage.setItem(LS_CFG, JSON.stringify(cfg));
       ok = true;
     } catch {}
   }
 
-  /* 2. 無 token → raw.githubusercontent.com（有輕量快取但可用） */
   if (!ok) {
     try {
       const r = await fetch(CONFIG_URL + '?_=' + Date.now());
       if (r.ok) {
-        cfg = await r.json();
+        const remote = await r.json();
+        cfg = { ...cfg, ...remote };
         localStorage.setItem(LS_CFG, JSON.stringify(cfg));
         ok = true;
       }
     } catch {}
   }
 
-  /* 3. 離線備援 → localStorage */
   if (!ok) {
     const s = localStorage.getItem(LS_CFG);
-    if (s) cfg = JSON.parse(s);
+    if (s) try { cfg = { ...cfg, ...JSON.parse(s) }; } catch {}
   }
 
   applyConfig();
 }
 
 function applyConfig() {
-  document.getElementById('badgeFetch').textContent = cfg.fetchIntervalMin;
-  document.getElementById('badgePost').textContent  = cfg.postIntervalMin;
-  document.getElementById('footerTxt').textContent  =
-    `每 ${cfg.fetchIntervalMin} 分鐘抓取 · 每 ${cfg.postIntervalMin} 分鐘發文 · 來源：中央社 · 自由時報 · ETtoday`;
-  // 調整前端 reload 間隔
+  document.getElementById('badgeFetch').textContent  = cfg.fetchIntervalMin;
+  document.getElementById('badgePost').textContent   = cfg.postIntervalMin;
+  document.getElementById('badgeReply').textContent  = cfg.replyIntervalMin || 30;
+  document.getElementById('footerTxt').textContent   =
+    `每 ${cfg.fetchIntervalMin} 分抓取 · 每 ${cfg.postIntervalMin} 分發文 · 每 ${cfg.replyIntervalMin || 30} 分回覆留言`;
   restartReload(cfg.fetchIntervalMin * 60 * 1000);
 }
 
-/* ── 新聞載入 ── */
+/* ══ 新聞載入 ══════════════════════════════════════════════════════════════ */
 let reloadTimer = null;
 function restartReload(ms) {
   if (reloadTimer) clearInterval(reloadTimer);
-  reloadTimer = setInterval(load, ms);
+  reloadTimer = setInterval(() => { loadNews(); loadReplies(); }, ms);
 }
 
 function ago(iso) {
@@ -221,26 +338,34 @@ function ago(iso) {
   return Math.floor(h / 24) + ' 天前';
 }
 
-function render(items) {
-  const el = document.getElementById('root');
-  if (!items.length) { el.innerHTML = '<div class="empty">尚無新聞，GitHub Actions 即將開始抓取…</div>'; return; }
-  el.innerHTML = items.map(n => `
-<article itemscope itemtype="https://schema.org/NewsArticle">
-  <div class="meta">
-    <span class="badge">${n.source||'新聞'}</span>
-    <time datetime="${n.at}" itemprop="datePublished">${ago(n.at)}</time>
-  </div>
-  <h2 itemprop="headline"><a href="${n.link}" target="_blank" rel="noopener noreferrer" itemprop="url">${n.title}</a></h2>
-  ${n.desc ? `<p class="desc" itemprop="description">${n.desc}</p>` : ''}
-</article>`).join('');
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-async function load() {
+function renderNews(items) {
+  const el = document.getElementById('root');
+  document.getElementById('newsCount').textContent = items.length || '0';
+  if (!items.length) {
+    el.innerHTML = '<div class="empty">尚無新聞，GitHub Actions 即將開始抓取…</div>';
+    return;
+  }
+  el.innerHTML = '<div class="grid">' + items.map(n => `
+<article class="news-card" itemscope itemtype="https://schema.org/NewsArticle">
+  <div class="meta">
+    <span class="badge">${esc(n.source || '新聞')}</span>
+    <time datetime="${esc(n.at)}" itemprop="datePublished">${ago(n.at)}</time>
+  </div>
+  <h2 itemprop="headline"><a href="${esc(n.link)}" target="_blank" rel="noopener noreferrer" itemprop="url">${esc(n.title)}</a></h2>
+  ${n.desc ? `<p class="desc" itemprop="description">${esc(n.desc)}</p>` : ''}
+</article>`).join('') + '</div>';
+}
+
+async function loadNews() {
   try {
     const r = await fetch(DATA_URL + '?_=' + Date.now());
     if (!r.ok) throw new Error(r.status);
     const d = await r.json();
-    render(d);
+    renderNews(d);
     document.getElementById('status').textContent =
       (d.length ? d.length + ' 則' : '等待更新') + ' · ' + new Date().toLocaleTimeString('zh-TW');
   } catch {
@@ -248,18 +373,100 @@ async function load() {
   }
 }
 
-/* ── Modal 控制 ── */
-const overlay  = document.getElementById('modalOverlay');
-const inFetch  = document.getElementById('inputFetch');
-const inPost   = document.getElementById('inputPost');
-const inToken  = document.getElementById('inputToken');
-const saveMsg  = document.getElementById('saveMsg');
-const btnSave  = document.getElementById('btnSave');
+/* ══ 回覆記錄載入 ══════════════════════════════════════════════════════════ */
+function renderReplies(items) {
+  const el = document.getElementById('replyRoot');
+  document.getElementById('replyCount').textContent = items.length || '0';
+
+  if (!items.length) {
+    el.innerHTML = `<div class="reply-empty">
+      <p>📭 尚無回覆記錄</p>
+      <small>當 fb-reply 工作流程執行後，AI 回覆的留言會顯示在這裡</small>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = `
+  <div class="reply-header">
+    <h2>最新 AI 回覆記錄</h2>
+    <span class="reply-count">共 ${items.length} 則</span>
+  </div>
+  <div class="reply-grid">` +
+  items.map(r => {
+    const postPreview = esc(r.postTitle || '').slice(0, 80) + (r.postTitle && r.postTitle.length > 80 ? '…' : '');
+    return `
+<article class="reply-card">
+  <div class="rc-post">
+    <span class="rc-icon">📰</span>
+    <span class="rc-post-text"><strong>原文貼文：</strong>${postPreview || '（無標題）'}</span>
+    ${r.postUrl ? `<a class="rc-post-link" href="${esc(r.postUrl)}" target="_blank" rel="noopener noreferrer">查看貼文 ↗</a>` : ''}
+  </div>
+  <hr class="rc-divider">
+  <div class="rc-comment">
+    <span class="rc-icon">👤</span>
+    <div class="rc-comment-text">
+      <div class="rc-commenter">${esc(r.commenterName || '網友')}</div>
+      ${esc(r.commentText || '')}
+    </div>
+  </div>
+  <div class="rc-reply">
+    <span class="rc-icon">🤖</span>
+    <div class="rc-reply-text">
+      <div class="rc-reply-label">AI 回覆</div>
+      ${esc(r.replyText || '')}
+    </div>
+  </div>
+  <div class="rc-footer">
+    <span class="rc-time">⏱ ${ago(r.repliedAt)}</span>
+    ${r.pageId ? `<span class="rc-page">粉專 ${esc(r.pageId)}</span>` : ''}
+  </div>
+</article>`;
+  }).join('') + '</div>';
+}
+
+async function loadReplies() {
+  try {
+    const r = await fetch(REPLY_URL + '?_=' + Date.now());
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    renderReplies(Array.isArray(d) ? d : []);
+  } catch {
+    document.getElementById('replyRoot').innerHTML =
+      '<div class="reply-empty"><p>⚠ 載入回覆記錄失敗</p></div>';
+    document.getElementById('replyCount').textContent = '?';
+  }
+}
+
+/* ══ Tab 切換 ══════════════════════════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    if (tab === 'replies') loadReplies();
+  });
+});
+
+/* ══ Modal 控制 ════════════════════════════════════════════════════════════ */
+const overlay   = document.getElementById('modalOverlay');
+const inFetch   = document.getElementById('inputFetch');
+const inPost    = document.getElementById('inputPost');
+const inReply   = document.getElementById('inputReply');
+const inPerRun  = document.getElementById('inputRepliesPerRun');
+const inPageIds = document.getElementById('inputPageIds');
+const inToken   = document.getElementById('inputToken');
+const saveMsg   = document.getElementById('saveMsg');
+const btnSave   = document.getElementById('btnSave');
 
 function openModal() {
-  inFetch.value = cfg.fetchIntervalMin;
-  inPost.value  = cfg.postIntervalMin;
-  inToken.value = localStorage.getItem(LS_TOKEN) || '';
+  inFetch.value   = cfg.fetchIntervalMin;
+  inPost.value    = cfg.postIntervalMin;
+  inReply.value   = cfg.replyIntervalMin || 30;
+  inPerRun.value  = cfg.repliesPerRun    || 3;
+  inPageIds.value = (cfg.fbPageIds || []).join('\n');
+  inToken.value   = localStorage.getItem(LS_TOKEN) || '';
   saveMsg.textContent = '';
   saveMsg.className   = 'save-msg';
   overlay.classList.add('open');
@@ -271,29 +478,31 @@ document.getElementById('btnClose').onclick    = closeModal;
 document.getElementById('btnCancel').onclick   = closeModal;
 overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
-/* ── 儲存設定 ── */
+/* ══ 儲存設定 ══════════════════════════════════════════════════════════════ */
 btnSave.addEventListener('click', async () => {
-  const fetchMin = parseInt(inFetch.value) || 5;
-  const postMin  = parseInt(inPost.value)  || 60;
-  const token    = inToken.value.trim();
+  const fetchMin  = Math.max(1, parseInt(inFetch.value)  || 5);
+  const postMin   = Math.max(1, parseInt(inPost.value)   || 60);
+  const replyMin  = Math.max(5, parseInt(inReply.value)  || 30);
+  const perRun    = Math.max(1, parseInt(inPerRun.value) || 3);
+  const pageIds   = inPageIds.value.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+  const token     = inToken.value.trim();
 
   if (!token) { setMsg('請輸入 GitHub Token', 'err'); return; }
-  if (fetchMin < 1 || postMin < 1) { setMsg('間隔至少 1 分鐘', 'err'); return; }
 
   localStorage.setItem(LS_TOKEN, token);
   btnSave.disabled = true;
   setMsg('儲存中…', '');
 
   try {
-    // 1. 取得目前檔案 SHA
+    // 1. 取得目前 SHA
     const getRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
       headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
     });
     if (!getRes.ok) throw new Error(`GET 失敗 HTTP ${getRes.status}`);
     const { sha } = await getRes.json();
 
-    // 2. 更新檔案
-    const newCfg = { fetchIntervalMin: fetchMin, postIntervalMin: postMin };
+    // 2. 更新設定
+    const newCfg = { fetchIntervalMin: fetchMin, postIntervalMin: postMin, replyIntervalMin: replyMin, repliesPerRun: perRun, fbPageIds: pageIds };
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(newCfg, null, 2) + '\n')));
     const putRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
       method: 'PUT',
@@ -303,9 +512,8 @@ btnSave.addEventListener('click', async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: `⚙️ 設定：抓取${fetchMin}分 · 發文${postMin}分`,
-        content,
-        sha,
+        message: `⚙️ 設定更新：抓取${fetchMin}分·發文${postMin}分·回覆${replyMin}分`,
+        content, sha,
       }),
     });
     if (!putRes.ok) {
@@ -313,19 +521,19 @@ btnSave.addEventListener('click', async () => {
       throw new Error(`PUT 失敗 HTTP ${putRes.status}: ${errText}`);
     }
 
-    // 3. 清除 jsDelivr CDN 快取（背景執行）
-    fetch(CDN_PURGE).catch(() => {});
+    // 3. 清除 CDN 快取
+    fetch(CDN_PURGE_CFG).catch(() => {});
 
-    // 4. 用 GitHub Contents API 立即驗證（無快取，PUT 後立即可讀）
+    // 4. 驗證
     setMsg('驗證中…', '');
     const { parsed: verified } = await ghGetConfig(token);
     if (verified.fetchIntervalMin === fetchMin && verified.postIntervalMin === postMin) {
-      cfg = verified;
+      cfg = { ...cfg, ...verified };
       localStorage.setItem(LS_CFG, JSON.stringify(cfg));
       applyConfig();
-      setMsg(`✓ 已儲存並驗證！抓取 ${fetchMin} 分 · 發文 ${postMin} 分`, 'ok');
+      setMsg(`✓ 儲存成功！抓取 ${fetchMin} 分 · 發文 ${postMin} 分 · 回覆 ${replyMin} 分（${perRun} 則/次）${pageIds.length ? '，粉專 ' + pageIds.length + ' 個' : ''}`, 'ok');
     } else {
-      throw new Error(`驗證失敗：GitHub 回傳 fetch=${verified.fetchIntervalMin} post=${verified.postIntervalMin}（與預期不符）`);
+      throw new Error(`驗證失敗：GitHub 回傳值不符`);
     }
   } catch(e) {
     setMsg('❌ ' + e.message, 'err');
@@ -339,9 +547,10 @@ function setMsg(text, cls) {
   saveMsg.className   = 'save-msg' + (cls ? ' ' + cls : '');
 }
 
-/* ── 初始化 ── */
+/* ══ 初始化 ════════════════════════════════════════════════════════════════ */
 loadConfig();
-load();
+loadNews();
+loadReplies();
 </script>
 </body>
 </html>

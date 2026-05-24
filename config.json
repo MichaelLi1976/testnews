@@ -1,4 +1,7 @@
 {
-  "fetchIntervalMin": 120,
-  "postIntervalMin": 1000
+  "fetchIntervalMin": 5,
+  "postIntervalMin": 60,
+  "replyIntervalMin": 30,
+  "repliesPerRun": 3,
+  "fbPageIds": []
 }
