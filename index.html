@@ -141,7 +141,8 @@ footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--sub);border
 <script>
 /* ── 常數 ── */
 const DATA_URL   = 'https://cdn.jsdelivr.net/gh/MichaelLi1976/testnews@master/news.json';
-const CONFIG_URL = 'https://cdn.jsdelivr.net/gh/MichaelLi1976/testnews@master/config.json';
+const CONFIG_URL = 'https://raw.githubusercontent.com/MichaelLi1976/testnews/master/config.json';
+const CDN_PURGE  = 'https://purge.jsdelivr.net/gh/MichaelLi1976/testnews@master/config.json';
 const GH_REPO    = 'MichaelLi1976/testnews';
 const GH_FILE    = 'config.json';
 const LS_TOKEN   = 'ghToken';
@@ -276,12 +277,38 @@ btnSave.addEventListener('click', async () => {
         sha,
       }),
     });
-    if (!putRes.ok) throw new Error(`PUT 失敗 HTTP ${putRes.status}: ${await putRes.text()}`);
+    if (!putRes.ok) {
+      const errText = await putRes.text();
+      throw new Error(`PUT 失敗 HTTP ${putRes.status}: ${errText}`);
+    }
 
-    cfg = newCfg;
-    localStorage.setItem(LS_CFG, JSON.stringify(cfg));
-    applyConfig();
-    setMsg(`✓ 已儲存！抓取${fetchMin}分 · 發文${postMin}分（重啟本機排程後生效）`, 'ok');
+    // 3. 清除 jsDelivr CDN 快取
+    try { await fetch(CDN_PURGE); } catch {}
+
+    // 4. 從 GitHub raw 驗證確實寫入（等 GitHub 傳播）
+    setMsg('驗證中…', '');
+    await new Promise(r => setTimeout(r, 2000));
+    const verRes = await fetch(CONFIG_URL + '?_=' + Date.now());
+    if (verRes.ok) {
+      const verified = await verRes.json();
+      if (verified.fetchIntervalMin === fetchMin && verified.postIntervalMin === postMin) {
+        cfg = verified;
+        localStorage.setItem(LS_CFG, JSON.stringify(cfg));
+        applyConfig();
+        setMsg(`✓ 已儲存並驗證！抓取 ${fetchMin} 分 · 發文 ${postMin} 分`, 'ok');
+      } else {
+        // GitHub 已寫入但原子性傳播稍慢，本地先用新值
+        cfg = newCfg;
+        localStorage.setItem(LS_CFG, JSON.stringify(cfg));
+        applyConfig();
+        setMsg(`✓ 已寫入 GitHub（同步中）— 抓取 ${fetchMin} 分 · 發文 ${postMin} 分`, 'ok');
+      }
+    } else {
+      cfg = newCfg;
+      localStorage.setItem(LS_CFG, JSON.stringify(cfg));
+      applyConfig();
+      setMsg(`✓ 已寫入 GitHub — 抓取 ${fetchMin} 分 · 發文 ${postMin} 分`, 'ok');
+    }
   } catch(e) {
     setMsg('❌ ' + e.message, 'err');
   } finally {
