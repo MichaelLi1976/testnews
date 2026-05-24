@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>台灣即時新聞 — 每5分鐘自動更新</title>
+<meta name="description" content="自動彙整台灣各大媒體最新新聞，每5分鐘更新，涵蓋中央社、自由時報、ETtoday。">
+<meta name="keywords" content="台灣新聞,即時新聞,最新消息,Taiwan news,中央社,自由時報">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="台灣即時新聞">
+<meta property="og:description" content="每5分鐘自動更新的台灣最新新聞">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsMediaOrganization","name":"台灣即時新聞","description":"自動彙整台灣各大媒體最新新聞"}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0c0c0c;--card:#161616;--border:#252525;--text:#ededed;--sub:#777;--red:#e5383b;--red2:rgba(229,56,59,.12)}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;min-height:100vh}
+header{background:#111;border-bottom:1px solid var(--border);padding:1rem 1.5rem;position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between;gap:1rem;backdrop-filter:blur(10px)}
+.logo{font-size:1.15rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:.5rem}
+.logo em{color:var(--red);font-style:normal}
+.live{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+#status{font-size:.72rem;color:var(--sub);white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:1.75rem 1rem 3rem}
+h1.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.grid{display:grid;gap:.875rem}
+article{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.35rem;transition:border-color .18s,transform .18s;cursor:pointer}
+article:hover{border-color:var(--red);transform:translateY(-2px)}
+.meta{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap}
+.badge{background:var(--red2);color:var(--red);font-size:.68rem;font-weight:700;padding:.18rem .55rem;border-radius:100px;letter-spacing:.02em}
+time{font-size:.72rem;color:var(--sub);margin-left:auto}
+h2{font-size:.97rem;font-weight:600;line-height:1.55;margin-bottom:.4rem}
+h2 a{color:var(--text);text-decoration:none}
+h2 a:hover{color:var(--red)}
+p.desc{font-size:.82rem;color:var(--sub);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.skel{background:linear-gradient(90deg,var(--card) 25%,var(--border) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:14px;height:106px;border:1px solid var(--border)}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.empty{text-align:center;color:var(--sub);padding:5rem 0;font-size:.9rem}
+footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--sub);border-top:1px solid var(--border)}
+@media(max-width:560px){header{padding:.75rem 1rem}.logo{font-size:1rem}main{padding:1rem .75rem 2rem}article{padding:.9rem 1rem}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="live"></span>台灣<em>即時</em>新聞</div>
+  <div id="status">載入中…</div>
+</header>
+<main>
+  <h1 class="sr">台灣即時新聞 — 每5分鐘自動更新</h1>
+  <div id="root">
+    <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    <div class="skel"></div><div class="skel"></div>
+  </div>
+</main>
+<footer>每 5 分鐘自動更新 &nbsp;·&nbsp; 來源：中央社 · 自由時報 · ETtoday</footer>
+<script>
+const URL = 'https://raw.githubusercontent.com/MichaelLi1976/testnews/main/news.json';
+
+function ago(iso) {
+  const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (m < 1)  return '剛剛';
+  if (m < 60) return m + ' 分鐘前';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + ' 小時前';
+  return Math.floor(h / 24) + ' 天前';
+}
+
+function render(items) {
+  const el = document.getElementById('root');
+  if (!items.length) { el.innerHTML = '<div class="empty">尚無新聞，GitHub Actions 即將開始抓取…</div>'; return; }
+  el.innerHTML = items.map(n => `
+<article itemscope itemtype="https://schema.org/NewsArticle">
+  <div class="meta">
+    <span class="badge">${n.source||'新聞'}</span>
+    <time datetime="${n.at}" itemprop="datePublished">${ago(n.at)}</time>
+  </div>
+  <h2 itemprop="headline"><a href="${n.link}" target="_blank" rel="noopener noreferrer" itemprop="url">${n.title}</a></h2>
+  ${n.desc ? `<p class="desc" itemprop="description">${n.desc}</p>` : ''}
+</article>`).join('');
+}
+
+async function load() {
+  try {
+    const r = await fetch(URL + '?_=' + Date.now());
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    render(d);
+    document.getElementById('status').textContent =
+      (d.length ? d.length + ' 則' : '等待更新') + ' · ' + new Date().toLocaleTimeString('zh-TW');
+  } catch {
+    document.getElementById('status').textContent = '更新失敗，重試中…';
+  }
+}
+
+load();
+setInterval(load, 5 * 60 * 1000);
+</script>
+</body>
+</html>
