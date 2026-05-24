@@ -3,24 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>台灣即時新聞 — 每5分鐘自動更新</title>
-<meta name="description" content="自動彙整台灣各大媒體最新新聞，每5分鐘更新，涵蓋中央社、自由時報、ETtoday。">
+<title>台灣即時新聞 — 自動更新</title>
+<meta name="description" content="自動彙整台灣各大媒體最新新聞，涵蓋中央社、自由時報、ETtoday。">
 <meta name="keywords" content="台灣新聞,即時新聞,最新消息,Taiwan news,中央社,自由時報">
 <meta name="robots" content="index,follow">
 <meta property="og:title" content="台灣即時新聞">
-<meta property="og:description" content="每5分鐘自動更新的台灣最新新聞">
+<meta property="og:description" content="自動更新的台灣最新新聞">
 <meta property="og:type" content="website">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsMediaOrganization","name":"台灣即時新聞","description":"自動彙整台灣各大媒體最新新聞"}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0c0c0c;--card:#161616;--border:#252525;--text:#ededed;--sub:#777;--red:#e5383b;--red2:rgba(229,56,59,.12)}
+:root{--bg:#0c0c0c;--card:#161616;--border:#252525;--text:#ededed;--sub:#777;--red:#e5383b;--red2:rgba(229,56,59,.12);--green:#22c55e;--modal-bg:rgba(0,0,0,.75)}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;min-height:100vh}
+
+/* ── Header ── */
 header{background:#111;border-bottom:1px solid var(--border);padding:1rem 1.5rem;position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between;gap:1rem;backdrop-filter:blur(10px)}
 .logo{font-size:1.15rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:.5rem}
 .logo em{color:var(--red);font-style:normal}
 .live{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.header-right{display:flex;align-items:center;gap:.75rem}
 #status{font-size:.72rem;color:var(--sub);white-space:nowrap}
+.badge-interval{font-size:.68rem;color:var(--sub);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.2rem .5rem;white-space:nowrap}
+.badge-interval span{color:var(--red)}
+
+/* ── Settings button ── */
+.btn-settings{background:none;border:1px solid var(--border);color:var(--sub);border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-size:1rem;transition:border-color .15s,color .15s;line-height:1}
+.btn-settings:hover{border-color:var(--red);color:var(--text)}
+
+/* ── Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:var(--modal-bg);z-index:100;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:#1a1a1a;border:1px solid var(--border);border-radius:16px;padding:1.5rem;width:100%;max-width:420px;position:relative}
+.modal h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.modal h3::before{content:'⚙';font-size:1.1rem}
+.form-row{margin-bottom:1rem}
+.form-row label{display:block;font-size:.78rem;color:var(--sub);margin-bottom:.4rem}
+.form-row .input-wrap{display:flex;align-items:center;gap:.5rem}
+.form-row input[type=number]{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.5rem .75rem;font-size:.9rem;width:90px;outline:none}
+.form-row input[type=number]:focus{border-color:var(--red)}
+.form-row .unit{font-size:.78rem;color:var(--sub)}
+.form-row input[type=password],
+.form-row input[type=text]{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.5rem .75rem;font-size:.82rem;width:100%;outline:none;font-family:monospace}
+.form-row input[type=password]:focus,
+.form-row input[type=text]:focus{border-color:var(--red)}
+.token-hint{font-size:.7rem;color:var(--sub);margin-top:.3rem}
+.token-hint a{color:var(--red);text-decoration:none}
+.modal-actions{display:flex;gap:.75rem;margin-top:1.5rem}
+.btn-save{flex:1;background:var(--red);color:#fff;border:none;border-radius:8px;padding:.6rem;font-size:.88rem;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn-save:hover{opacity:.85}
+.btn-save:disabled{opacity:.4;cursor:not-allowed}
+.btn-cancel{background:none;border:1px solid var(--border);color:var(--sub);border-radius:8px;padding:.6rem 1rem;font-size:.88rem;cursor:pointer;transition:border-color .15s}
+.btn-cancel:hover{border-color:var(--text)}
+.save-msg{font-size:.78rem;margin-top:.75rem;min-height:1.2em;text-align:center}
+.save-msg.ok{color:var(--green)}
+.save-msg.err{color:var(--red)}
+.modal-close{position:absolute;top:.75rem;right:.75rem;background:none;border:none;color:var(--sub);font-size:1.2rem;cursor:pointer;line-height:1;padding:.25rem}
+.modal-close:hover{color:var(--text)}
+
+/* ── News grid ── */
 main{max-width:860px;margin:0 auto;padding:1.75rem 1rem 3rem}
 h1.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 .grid{display:grid;gap:.875rem}
@@ -38,24 +79,106 @@ p.desc{font-size:.82rem;color:var(--sub);line-height:1.6;display:-webkit-box;-we
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .empty{text-align:center;color:var(--sub);padding:5rem 0;font-size:.9rem}
 footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--sub);border-top:1px solid var(--border)}
-@media(max-width:560px){header{padding:.75rem 1rem}.logo{font-size:1rem}main{padding:1rem .75rem 2rem}article{padding:.9rem 1rem}}
+@media(max-width:560px){header{padding:.75rem 1rem}.logo{font-size:1rem}main{padding:1rem .75rem 2rem}article{padding:.9rem 1rem}.badge-interval{display:none}}
 </style>
 </head>
 <body>
+
 <header>
   <div class="logo"><span class="live"></span>台灣<em>即時</em>新聞</div>
-  <div id="status">載入中…</div>
+  <div class="header-right">
+    <div class="badge-interval" id="intervalBadge">抓取 <span id="badgeFetch">5</span>分 · 發文 <span id="badgePost">60</span>分</div>
+    <div id="status">載入中…</div>
+    <button class="btn-settings" id="btnSettings" title="排程設定">⚙</button>
+  </div>
 </header>
+
+<!-- 設定 Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="btnClose">✕</button>
+    <h3>排程設定</h3>
+
+    <div class="form-row">
+      <label>抓取新聞間隔</label>
+      <div class="input-wrap">
+        <input type="number" id="inputFetch" min="1" max="1440" value="5">
+        <span class="unit">分鐘</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>FB 發文間隔</label>
+      <div class="input-wrap">
+        <input type="number" id="inputPost" min="1" max="1440" value="60">
+        <span class="unit">分鐘</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>GitHub Token（儲存於本機）</label>
+      <input type="password" id="inputToken" placeholder="gho_xxxx 或 ghp_xxxx" autocomplete="off">
+      <div class="token-hint">Token 需有 <code>repo</code> + <code>workflow</code> 權限。<a href="https://github.com/settings/tokens" target="_blank">取得 Token →</a></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnCancel">取消</button>
+      <button class="btn-save" id="btnSave">儲存設定</button>
+    </div>
+    <div class="save-msg" id="saveMsg"></div>
+  </div>
+</div>
+
 <main>
-  <h1 class="sr">台灣即時新聞 — 每5分鐘自動更新</h1>
+  <h1 class="sr">台灣即時新聞 — 自動更新</h1>
   <div id="root">
     <div class="skel"></div><div class="skel"></div><div class="skel"></div>
     <div class="skel"></div><div class="skel"></div>
   </div>
 </main>
-<footer>每 5 分鐘自動更新 &nbsp;·&nbsp; 來源：中央社 · 自由時報 · ETtoday</footer>
+<footer id="footerTxt">自動更新 &nbsp;·&nbsp; 來源：中央社 · 自由時報 · ETtoday</footer>
+
 <script>
-const DATA_URL = 'https://cdn.jsdelivr.net/gh/MichaelLi1976/testnews@master/news.json';
+/* ── 常數 ── */
+const DATA_URL   = 'https://cdn.jsdelivr.net/gh/MichaelLi1976/testnews@master/news.json';
+const CONFIG_URL = 'https://cdn.jsdelivr.net/gh/MichaelLi1976/testnews@master/config.json';
+const GH_REPO    = 'MichaelLi1976/testnews';
+const GH_FILE    = 'config.json';
+const LS_TOKEN   = 'ghToken';
+const LS_CFG     = 'newsConfig';
+
+/* ── 設定 ── */
+let cfg = { fetchIntervalMin: 5, postIntervalMin: 60 };
+
+async function loadConfig() {
+  try {
+    const r = await fetch(CONFIG_URL + '?_=' + Date.now());
+    if (r.ok) {
+      cfg = await r.json();
+      localStorage.setItem(LS_CFG, JSON.stringify(cfg));
+    }
+  } catch {
+    const s = localStorage.getItem(LS_CFG);
+    if (s) cfg = JSON.parse(s);
+  }
+  applyConfig();
+}
+
+function applyConfig() {
+  document.getElementById('badgeFetch').textContent = cfg.fetchIntervalMin;
+  document.getElementById('badgePost').textContent  = cfg.postIntervalMin;
+  document.getElementById('footerTxt').textContent  =
+    `每 ${cfg.fetchIntervalMin} 分鐘抓取 · 每 ${cfg.postIntervalMin} 分鐘發文 · 來源：中央社 · 自由時報 · ETtoday`;
+  // 調整前端 reload 間隔
+  restartReload(cfg.fetchIntervalMin * 60 * 1000);
+}
+
+/* ── 新聞載入 ── */
+let reloadTimer = null;
+function restartReload(ms) {
+  if (reloadTimer) clearInterval(reloadTimer);
+  reloadTimer = setInterval(load, ms);
+}
 
 function ago(iso) {
   const m = Math.floor((Date.now() - new Date(iso)) / 60000);
@@ -93,8 +216,87 @@ async function load() {
   }
 }
 
+/* ── Modal 控制 ── */
+const overlay  = document.getElementById('modalOverlay');
+const inFetch  = document.getElementById('inputFetch');
+const inPost   = document.getElementById('inputPost');
+const inToken  = document.getElementById('inputToken');
+const saveMsg  = document.getElementById('saveMsg');
+const btnSave  = document.getElementById('btnSave');
+
+function openModal() {
+  inFetch.value = cfg.fetchIntervalMin;
+  inPost.value  = cfg.postIntervalMin;
+  inToken.value = localStorage.getItem(LS_TOKEN) || '';
+  saveMsg.textContent = '';
+  saveMsg.className   = 'save-msg';
+  overlay.classList.add('open');
+}
+function closeModal() { overlay.classList.remove('open'); }
+
+document.getElementById('btnSettings').onclick = openModal;
+document.getElementById('btnClose').onclick    = closeModal;
+document.getElementById('btnCancel').onclick   = closeModal;
+overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+/* ── 儲存設定 ── */
+btnSave.addEventListener('click', async () => {
+  const fetchMin = parseInt(inFetch.value) || 5;
+  const postMin  = parseInt(inPost.value)  || 60;
+  const token    = inToken.value.trim();
+
+  if (!token) { setMsg('請輸入 GitHub Token', 'err'); return; }
+  if (fetchMin < 1 || postMin < 1) { setMsg('間隔至少 1 分鐘', 'err'); return; }
+
+  localStorage.setItem(LS_TOKEN, token);
+  btnSave.disabled = true;
+  setMsg('儲存中…', '');
+
+  try {
+    // 1. 取得目前檔案 SHA
+    const getRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!getRes.ok) throw new Error(`GET 失敗 HTTP ${getRes.status}`);
+    const { sha } = await getRes.json();
+
+    // 2. 更新檔案
+    const newCfg = { fetchIntervalMin: fetchMin, postIntervalMin: postMin };
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(newCfg, null, 2) + '\n')));
+    const putRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `⚙️ 設定：抓取${fetchMin}分 · 發文${postMin}分`,
+        content,
+        sha,
+      }),
+    });
+    if (!putRes.ok) throw new Error(`PUT 失敗 HTTP ${putRes.status}: ${await putRes.text()}`);
+
+    cfg = newCfg;
+    localStorage.setItem(LS_CFG, JSON.stringify(cfg));
+    applyConfig();
+    setMsg(`✓ 已儲存！抓取${fetchMin}分 · 發文${postMin}分（重啟本機排程後生效）`, 'ok');
+  } catch(e) {
+    setMsg('❌ ' + e.message, 'err');
+  } finally {
+    btnSave.disabled = false;
+  }
+});
+
+function setMsg(text, cls) {
+  saveMsg.textContent = text;
+  saveMsg.className   = 'save-msg' + (cls ? ' ' + cls : '');
+}
+
+/* ── 初始化 ── */
+loadConfig();
 load();
-setInterval(load, 5 * 60 * 1000);
 </script>
 </body>
 </html>
