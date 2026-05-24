@@ -24,7 +24,7 @@ header{background:#111;border-bottom:1px solid var(--border);padding:1rem 1.5rem
 main{max-width:860px;margin:0 auto;padding:1.75rem 1rem 3rem}
 h1.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 .grid{display:grid;gap:.875rem}
-article{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.35rem;transition:border-color .18s,transform .18s;cursor:pointer}
+article{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.35rem;transition:border-color .18s,transform .18s;cursor:pointer;position:relative}
 article:hover{border-color:var(--red);transform:translateY(-2px)}
 .meta{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap}
 .badge{background:var(--red2);color:var(--red);font-size:.68rem;font-weight:700;padding:.18rem .55rem;border-radius:100px;letter-spacing:.02em}
@@ -32,6 +32,7 @@ time{font-size:.72rem;color:var(--sub);margin-left:auto}
 h2{font-size:.97rem;font-weight:600;line-height:1.55;margin-bottom:.4rem}
 h2 a{color:var(--text);text-decoration:none}
 h2 a:hover{color:var(--red)}
+h2 a::after{content:'';position:absolute;inset:0;z-index:1}
 p.desc{font-size:.82rem;color:var(--sub);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .skel{background:linear-gradient(90deg,var(--card) 25%,var(--border) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:14px;height:106px;border:1px solid var(--border)}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
