@@ -151,17 +151,48 @@ const LS_CFG     = 'newsConfig';
 /* ── 設定 ── */
 let cfg = { fetchIntervalMin: 5, postIntervalMin: 60 };
 
+/* 用 GitHub Contents API 讀取 config（零快取，直連 git object store） */
+async function ghGetConfig(token) {
+  const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
+    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+  });
+  if (!r.ok) throw new Error(`GitHub API ${r.status}`);
+  const data = await r.json();
+  return { parsed: JSON.parse(atob(data.content.replace(/\n/g, ''))), sha: data.sha };
+}
+
 async function loadConfig() {
-  try {
-    const r = await fetch(CONFIG_URL + '?_=' + Date.now());
-    if (r.ok) {
-      cfg = await r.json();
+  const token = localStorage.getItem(LS_TOKEN);
+  let ok = false;
+
+  /* 1. 有 token → GitHub Contents API（無任何快取，100% 即時） */
+  if (token) {
+    try {
+      const { parsed } = await ghGetConfig(token);
+      cfg = parsed;
       localStorage.setItem(LS_CFG, JSON.stringify(cfg));
-    }
-  } catch {
+      ok = true;
+    } catch {}
+  }
+
+  /* 2. 無 token → raw.githubusercontent.com（有輕量快取但可用） */
+  if (!ok) {
+    try {
+      const r = await fetch(CONFIG_URL + '?_=' + Date.now());
+      if (r.ok) {
+        cfg = await r.json();
+        localStorage.setItem(LS_CFG, JSON.stringify(cfg));
+        ok = true;
+      }
+    } catch {}
+  }
+
+  /* 3. 離線備援 → localStorage */
+  if (!ok) {
     const s = localStorage.getItem(LS_CFG);
     if (s) cfg = JSON.parse(s);
   }
+
   applyConfig();
 }
 
@@ -282,32 +313,19 @@ btnSave.addEventListener('click', async () => {
       throw new Error(`PUT 失敗 HTTP ${putRes.status}: ${errText}`);
     }
 
-    // 3. 清除 jsDelivr CDN 快取
-    try { await fetch(CDN_PURGE); } catch {}
+    // 3. 清除 jsDelivr CDN 快取（背景執行）
+    fetch(CDN_PURGE).catch(() => {});
 
-    // 4. 從 GitHub raw 驗證確實寫入（等 GitHub 傳播）
+    // 4. 用 GitHub Contents API 立即驗證（無快取，PUT 後立即可讀）
     setMsg('驗證中…', '');
-    await new Promise(r => setTimeout(r, 2000));
-    const verRes = await fetch(CONFIG_URL + '?_=' + Date.now());
-    if (verRes.ok) {
-      const verified = await verRes.json();
-      if (verified.fetchIntervalMin === fetchMin && verified.postIntervalMin === postMin) {
-        cfg = verified;
-        localStorage.setItem(LS_CFG, JSON.stringify(cfg));
-        applyConfig();
-        setMsg(`✓ 已儲存並驗證！抓取 ${fetchMin} 分 · 發文 ${postMin} 分`, 'ok');
-      } else {
-        // GitHub 已寫入但原子性傳播稍慢，本地先用新值
-        cfg = newCfg;
-        localStorage.setItem(LS_CFG, JSON.stringify(cfg));
-        applyConfig();
-        setMsg(`✓ 已寫入 GitHub（同步中）— 抓取 ${fetchMin} 分 · 發文 ${postMin} 分`, 'ok');
-      }
-    } else {
-      cfg = newCfg;
+    const { parsed: verified } = await ghGetConfig(token);
+    if (verified.fetchIntervalMin === fetchMin && verified.postIntervalMin === postMin) {
+      cfg = verified;
       localStorage.setItem(LS_CFG, JSON.stringify(cfg));
       applyConfig();
-      setMsg(`✓ 已寫入 GitHub — 抓取 ${fetchMin} 分 · 發文 ${postMin} 分`, 'ok');
+      setMsg(`✓ 已儲存並驗證！抓取 ${fetchMin} 分 · 發文 ${postMin} 分`, 'ok');
+    } else {
+      throw new Error(`驗證失敗：GitHub 回傳 fetch=${verified.fetchIntervalMin} post=${verified.postIntervalMin}（與預期不符）`);
     }
   } catch(e) {
     setMsg('❌ ' + e.message, 'err');
