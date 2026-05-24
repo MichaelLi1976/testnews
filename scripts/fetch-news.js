@@ -51,7 +51,12 @@ function parse(xml) {
       || s.match(/<link[^>]+href="([^"]+)"/)?.[1]?.trim()
       || v('guid')
       || '';
-    const desc  = v('description').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 200);
+    const rawDesc = v('description')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&lt;[^&]*&gt;/g, '')
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#?\w+;/g, '')
+      .replace(/\s+/g, ' ').trim();
+    const desc  = rawDesc.slice(0, 200);
     const pub   = v('pubDate');
     return title && link ? [{ title, link, desc, pub }] : [];
   });
