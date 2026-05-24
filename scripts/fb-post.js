@@ -7,10 +7,10 @@ const https = require('https');
 const fs    = require('fs');
 
 const PABBLY_WEBHOOK = process.env.PABBLY_WEBHOOK_URL;  // Pabbly Webhook URL
-const AI_KEY         = process.env.ANTHROPIC_API_KEY;
-const AI_MODEL       = 'claude-3-5-haiku-20241022';
+const AI_KEY         = process.env.GROQ_API_KEY;
+const AI_MODEL       = 'llama-3.3-70b-versatile';
 
-// ── Anthropic API ─────────────────────────────────────────────────────────────
+// ── Groq API (OpenAI-compatible) ───────────────────────────────────────────────
 function claude(prompt) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
@@ -19,13 +19,12 @@ function claude(prompt) {
       messages: [{ role: 'user', content: prompt }],
     });
     const req = https.request({
-      hostname: 'api.anthropic.com',
-      path: '/v1/messages',
+      hostname: 'api.groq.com',
+      path: '/openai/v1/chat/completions',
       method: 'POST',
       headers: {
-        'Content-Type':      'application/json',
-        'x-api-key':         AI_KEY,
-        'anthropic-version': '2023-06-01',
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${AI_KEY}`,
       },
       timeout: 30000,
     }, res => {
@@ -33,12 +32,12 @@ function claude(prompt) {
       res.on('data', c => buf.push(c));
       res.on('end', () => {
         const d = JSON.parse(Buffer.concat(buf).toString());
-        if (d.error) return reject(new Error(`Claude: ${d.error.message}`));
-        resolve(d.content?.[0]?.text || '');
+        if (d.error) return reject(new Error(`Groq: ${d.error.message}`));
+        resolve(d.choices?.[0]?.message?.content || '');
       });
     });
     req.on('error', reject);
-    req.on('timeout', () => { req.destroy(); reject(new Error('Claude timeout')); });
+    req.on('timeout', () => { req.destroy(); reject(new Error('Groq timeout')); });
     req.write(body);
     req.end();
   });
