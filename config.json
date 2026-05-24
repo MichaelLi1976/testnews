@@ -1,4 +1,4 @@
 {
-  "fetchIntervalMin": 5,
-  "postIntervalMin": 8
+  "fetchIntervalMin": 3,
+  "postIntervalMin": 6
 }
