@@ -29,9 +29,16 @@ jobs:
           git config user.name "NewsBot"
           git config user.email "newsbot@users.noreply.github.com"
           git add news.json
-          git diff --staged --quiet || (
-            git commit -m "📰 $(date -u '+%Y-%m-%d %H:%M UTC')" &&
-            git push &&
-            curl -s "https://purge.jsdelivr.net/gh/MichaelLi1976/testnews@master/news.json" > /dev/null &&
-            echo "jsDelivr cache purged"
-          )
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "📰 $(date -u '+%Y-%m-%d %H:%M UTC')"
+          # 有衝突時 rebase 再推
+          for i in 1 2 3; do
+            git pull --rebase origin master --quiet && git push && break
+            echo "Push attempt $i failed, retrying..."
+            sleep 3
+          done
+          curl -s "https://purge.jsdelivr.net/gh/MichaelLi1976/testnews@master/news.json" > /dev/null
+          echo "jsDelivr cache purged"
